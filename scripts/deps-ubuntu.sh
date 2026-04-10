@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+sudo snap install nvim --classic
 sudo apt update
-sudo apt install -y neovim ripgrep fd-find
+sudo apt install -y ripgrep fd-find
 
 mkdir -p "$HOME/.local/bin"
 if command -v fdfind >/dev/null 2>&1 && [ ! -e "$HOME/.local/bin/fd" ]; then
