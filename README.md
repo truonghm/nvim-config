@@ -11,7 +11,7 @@ mv ~/.config/nvim ~/.config/nvim.backup.$(date +%Y%m%d-%H%M%S)
 2. Clone this repo:
 
 ```bash
-git clone <repo-url> ~/.config/nvim
+git clone https://github.com/truonghm/nvim-config ~/.config/nvim
 ```
 
 3. Install dependencies:
