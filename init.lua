@@ -301,6 +301,7 @@ require("lazy").setup({
     opts = {
       size = 10,
       open_mapping = "<leader>tt",
+      insert_mappings = false,
     }
   },
 
