@@ -114,6 +114,11 @@ require("lazy").setup({
         },
       })
       vim.lsp.enable("pyrefly")
+
+      vim.lsp.config("clangd", {
+        capabilities = capabilities,
+      })
+      vim.lsp.enable("clangd")
     end
   },
 
@@ -134,6 +139,29 @@ require("lazy").setup({
       local cmp = require('cmp')
       local luasnip = require('luasnip')
 
+      local tabout_chars = {
+        [")"] = true,
+        ["]"] = true,
+        ["}"] = true,
+        ['"'] = true,
+        ["'"] = true,
+      }
+
+      local tabout = function()
+        if vim.api.nvim_get_mode().mode ~= "i" then
+          return false
+        end
+
+        local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+        local line = vim.api.nvim_get_current_line()
+        local next_char = line:sub(col + 1, col + 1)
+        if tabout_chars[next_char] then
+          vim.api.nvim_win_set_cursor(0, { row, col + 1 })
+          return true
+        end
+        return false
+      end
+
       cmp.setup({
         snippet = {
           expand = function(args)
@@ -141,7 +169,7 @@ require("lazy").setup({
           end
         },
         completion = {
-          autocomplete = false
+          autocomplete = { cmp.TriggerEvent.TextChanged }
         },
         mapping = cmp.mapping.preset.insert ({
           ["<Tab>"] = cmp.mapping(function(fallback)
@@ -149,6 +177,8 @@ require("lazy").setup({
               cmp.select_next_item()
             elseif luasnip.expand_or_jumpable() then
               luasnip.expand_or_jump()
+            elseif tabout() then
+              return
             elseif has_words_before() then
               cmp.complete()
             else
@@ -267,9 +297,12 @@ require("lazy").setup({
 
   -- linting + formatting
   { "stevearc/conform.nvim",
+    ft = { "python", "c", "cpp" },
     opts = {
       formatters_by_ft = {
         python = { "ruff_fix", "ruff_format" },
+        c = { "clang_format" },
+        cpp = { "clang_format" },
       },
       format_on_save = {
         timeout_ms = 1000,
@@ -279,11 +312,14 @@ require("lazy").setup({
   },
 
   { "mfussenegger/nvim-lint",
+    ft = { "python", "c", "cpp" },
     config = function()
       local lint = require("lint")
 
       lint.linters_by_ft = {
         python = { "ruff" },
+        c = { "clangtidy" },
+        cpp = { "clangtidy" },
       }
 
       local lint_augroup = vim.api.nvim_create_augroup("nvim-lint", { clear = true })
