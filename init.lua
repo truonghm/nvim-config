@@ -88,6 +88,35 @@ require("lazy").setup({
   -- devicons
   { "nvim-tree/nvim-web-devicons", lazy = true },
 
+  -- keybinding hints
+  { "folke/which-key.nvim", event = "VeryLazy",
+    keys = {
+      { "<leader>?", function() require("which-key").show({ global = false }) end, desc = "Buffer Keymaps" },
+    },
+    opts = {
+      spec = {
+        { "<leader>b", group = "buffer" },
+        { "<leader>c", group = "code" },
+        { "<leader>g", group = "git" },
+        { "<leader>s", group = "search" },
+        { "<leader>t", group = "terminal" },
+        { "<leader>x", group = "diagnostics" },
+      },
+    },
+  },
+
+  -- notifications
+  { "rcarriga/nvim-notify", event = "VeryLazy",
+    keys = {
+      { "<leader>xn", "<cmd>Notifications<cr>", desc = "Notification History" },
+    },
+    config = function(_, opts)
+      local notify = require("notify")
+      notify.setup(opts)
+      vim.notify = notify
+    end,
+  },
+
   -- snippets
   { "L3MON4D3/LuaSnip", event = "VeryLazy",
     config = function()
@@ -120,6 +149,18 @@ require("lazy").setup({
       })
       vim.lsp.enable("clangd")
     end
+  },
+
+  -- Python virtual environment selector
+  { "linux-cultist/venv-selector.nvim",
+    ft = "python",
+    dependencies = {
+      "nvim-telescope/telescope.nvim",
+    },
+    keys = {
+      { "<leader>cv", "<cmd>VenvSelect<cr>", desc = "Select Python Venv" },
+    },
+    opts = {},
   },
 
   -- autocompletion
@@ -293,6 +334,47 @@ require("lazy").setup({
     config = function()
       require('telescope').load_extension('fzf')
     end
+  },
+
+  -- git diff view
+  { "sindrets/diffview.nvim",
+    cmd = { "DiffviewOpen", "DiffviewClose", "DiffviewFileHistory", "DiffviewFocusFiles", "DiffviewToggleFiles", "DiffviewRefresh" },
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-tree/nvim-web-devicons",
+    },
+    keys = {
+      { "<leader>go", "<cmd>DiffviewOpen<cr>", desc = "Open Diffview" },
+      { "<leader>gO", "<cmd>DiffviewOpen origin/main...HEAD<cr>", desc = "Open Branch Diffview" },
+      { "<leader>gq", "<cmd>DiffviewClose<cr>", desc = "Close Diffview" },
+      { "<leader>gh", "<cmd>DiffviewFileHistory %<cr>", desc = "File History" },
+    },
+    opts = {},
+  },
+
+  -- todo comments
+  { "folke/todo-comments.nvim", event = { "BufReadPost", "BufNewFile" },
+    dependencies = { "nvim-lua/plenary.nvim" },
+    keys = {
+      { "]t", function() require("todo-comments").jump_next() end, desc = "Next Todo Comment" },
+      { "[t", function() require("todo-comments").jump_prev() end, desc = "Previous Todo Comment" },
+      { "<leader>st", "<cmd>TodoTelescope<cr>", desc = "Search Todos" },
+    },
+    opts = {},
+  },
+
+  -- diagnostics and results lists
+  { "folke/trouble.nvim", cmd = "Trouble",
+    keys = {
+      { "<leader>xx", "<cmd>Trouble diagnostics toggle<cr>", desc = "Diagnostics (Trouble)" },
+      { "<leader>xX", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", desc = "Buffer Diagnostics (Trouble)" },
+      { "<leader>xt", "<cmd>Trouble todo toggle<cr>", desc = "Todos (Trouble)" },
+      { "<leader>xl", "<cmd>Trouble loclist toggle<cr>", desc = "Location List (Trouble)" },
+      { "<leader>xq", "<cmd>Trouble qflist toggle<cr>", desc = "Quickfix List (Trouble)" },
+      { "<leader>cs", "<cmd>Trouble symbols toggle focus=false<cr>", desc = "Symbols (Trouble)" },
+      { "<leader>cl", "<cmd>Trouble lsp toggle focus=false win.position=right<cr>", desc = "LSP (Trouble)" },
+    },
+    opts = {},
   },
 
   -- linting + formatting
