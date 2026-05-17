@@ -134,6 +134,13 @@ require("lazy").setup({
 
       vim.lsp.config("pyrefly", {
         capabilities = capabilities,
+        on_exit = function(code)
+          if code ~= 0 then
+            vim.schedule(function()
+              vim.notify("Pyrefly LSP exited with code: " .. code, vim.log.levels.WARN)
+            end)
+          end
+        end,
         settings = {
           python = {
             pyrefly = {
@@ -313,6 +320,7 @@ require("lazy").setup({
     keys = {
       { "<leader>sf", "<cmd>Telescope git_files<cr>", desc = "Find Files (root dir)" },
       { "<leader><space>", "<cmd>Telescope buffers<cr>", desc = "Find Buffers" },
+      { "<leader>P", "<cmd>Telescope commands<cr>", desc = "Command Palette" },
       { "<leader>sg", "<cmd>Telescope live_grep<cr>", desc = "Search Project" },
       { "<leader>ss", "<cmd>Telescope lsp_document_symbols<cr>", desc = "Search Document Symbols" },
       { "<leader>sw", "<cmd>Telescope lsp_dynamic_workspace_symbols<cr>", desc = "Search Workspace Symbols" },
@@ -514,4 +522,13 @@ vim.keymap.set('n', '<leader>ff', function()
 end, {desc = 'Format Code'})
 vim.diagnostic.config({
   virtual_lines = { current_line=true },  -- Enables inline error/warning text
+})
+
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(event)
+    local client = vim.lsp.get_client_by_id(event.data.client_id)
+    if client and client:supports_method("textDocument/inlayHint") then
+      vim.lsp.inlay_hint.enable(true, { bufnr = event.buf })
+    end
+  end,
 })
