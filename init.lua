@@ -76,14 +76,29 @@ vim.keymap.set('t', '<Esc>', "<C-\\><C-n>")
 vim.keymap.set('t', '<C-w>', "<C-\\><C-n><C-w>")
 
 -- minimize terminal split
-vim.keymap.set('n', '<C-g>', "3<C-w>_")
+vim.keymap.set('n', '<leader>tm', '3<C-w>_', { desc = 'Minimize terminal split' })
 
 -- plugins
 
 require("lazy").setup({
+  -- render markdown
+  {
+    "MeanderingProgrammer/render-markdown.nvim",
+    ft = "markdown",
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+      "nvim-tree/nvim-web-devicons",
+    },
+    opts = {},
+  },
   -- theme
- -- { "catppuccin/nvim", lazy = true, name = "catppuccin", priority=1000 },
-  { "sainnhe/everforest", lazy = false, name = "everforest", priority=1000 },
+  { "catppuccin/nvim", name = "catppuccin", priority = 1000,
+    config = function()
+      require("catppuccin").setup({
+        flavour = "mocha",
+      })
+    end,
+  },
 
   -- devicons
   { "nvim-tree/nvim-web-devicons", lazy = true },
@@ -436,7 +451,7 @@ require("lazy").setup({
     opts = {
       options = {
         icons_enabled = true,
-        theme = 'onedark',
+        theme = 'catppuccin-mocha',
         component_separators = '|',
         section_separators = '',
       }
@@ -485,8 +500,7 @@ require("lazy").setup({
 })
 
 -- set colour scheme
-vim.g.everforest_enable_italic = true
-vim.cmd.colorscheme "everforest"
+vim.cmd.colorscheme "catppuccin"
 
 -- up / down with line wrap
 vim.keymap.set('n', '<Up>', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
@@ -532,3 +546,14 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end
   end,
 })
+
+vim.api.nvim_create_user_command("CopyPath", function()
+  vim.fn.setreg("+", vim.fn.expand("%:."))
+end, {})
+
+vim.api.nvim_create_user_command("CopyAbsPath", function()
+  vim.fn.setreg("+", vim.fn.expand("%:p"))
+end, {})
+
+vim.keymap.set("x", "<Tab>", ">gv")
+vim.keymap.set("x", "<S-Tab>", "<gv")
